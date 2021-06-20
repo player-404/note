@@ -50,3 +50,8 @@
   * `vnode`：Vue 编译生成的虚拟节点。移步 [VNode API](https://cn.vuejs.org/v2/api/#VNode-接口) 来了解更多详情。
   * `oldVnode`：上一个虚拟节点，仅在 `update` 和 `componentUpdated` 钩子中可用。
 
+### 动态组件(is)
+
+[动态组件](https://cn.vuejs.org/v2/guide/components.html#动态组件)
+
+动态切换组件
