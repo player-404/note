@@ -30,7 +30,14 @@
    $ sudo make install install-doc install-html install-info
    ```
 
-   
+
+
+
+### 常用命令
+
+1. 删除远程origin
+
+   `git remote rm origin`
 
 ...待笔记
 

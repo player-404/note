@@ -395,3 +395,11 @@ Nginx提供了专门的gzip模块，并且模块中的指令非常丰富。
 
 [Nginx gzip参数详解及常见问题](https://www.cnblogs.com/xzkzzz/p/9224358.html)
 
+[Nginx 配置总结](https://www.cnblogs.com/66w66/p/13693703.html)
+
+### 常见错误
+
+* nginx: [error] open() "/var/run/nginx.pid" failed (2: No such file or direct [解决](https://ld246.com/article/1563147639170)
+
+  `nginx -c /etc/nginx/nginx.conf`
+
