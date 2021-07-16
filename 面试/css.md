@@ -120,3 +120,118 @@ box-sizing: border-box
 
 `width = content + border + padding  `
 
+
+
+**offsetWidth**
+
+offsetWidth = (内容宽度 + 内边距 + 边框), 无外边距
+
+**clientWidth**
+
+clientWidth = 内容宽度 + 内边距
+
+
+
+### margin 负值
+
+* margin-top 和 margin-left 负值, 元素向上，向左移动
+  * margin-right 负值， 右侧元素向左移动，自身不受影响
+* margin-bottom 负值，下方元素向上移，自身不受影响
+
+
+
+### 圣杯布局
+
+两边固定，中间自适应
+
+float实现（flex也可以实现）
+
+```html
+
+    <style>
+        header {
+            width: 100%;
+            height: 100px;
+            background-color: rebeccapurple;
+        }
+        .container {
+            width: 100%;
+            height: 500px;
+        }
+        .cloumn {
+            float: left;
+        }
+        .container {
+            box-sizing: border-box;
+            padding-left: 120px;
+            padding-right: 120px;
+        }
+       .container .cloumn {
+           float: left;
+           height: 100%;
+       }
+       .right {
+           margin-right: -120px;
+       }
+       .left {
+           margin-left: -120px;
+       }
+        .center {
+            background-color: royalblue;
+            width: 100%;
+        }
+        footer {
+            height: 100px;
+            background-color: salmon;
+        }
+    </style>
+</head>
+<body>
+    <header></header>
+    <div class="container">
+        <div class="left cloumn"> left </div>
+        <div class="center cloumn"> center </div>
+        <div class="right cloumn"> right </div>
+    </div>
+    <footer></footer>
+</body>
+```
+
+<img src="https://cdn.jsdelivr.net/gh/player-404/picture/%E5%8F%8C%E9%A3%9E%E7%BF%BC%E5%B8%83%E5%B1%80.png" width="100%" />
+
+
+
+### absoulte&relative相对于什么定位
+
+absoulte相对于最近一层定位元素定位
+
+relative相对于自身定位
+
+
+
+### 水平居中
+
+inline元素： text-align: center
+
+block元素： margin: auto
+
+absolute元素：left50% + margin-left: -50%
+
+flex: justify-center
+
+
+
+### rem是什么
+
+rem是长度单位， 相对于根元素字体大小
+
+px 绝对长度单位
+
+em 相对长度单位， 相对于父元素子日大小
+
+**响应式布局常用解决方案**
+
+media-query(媒体查询)， 根据不同的屏幕宽度设置跟元素 font-size再设置相应的rem
+
+
+
