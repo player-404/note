@@ -1,6 +1,8 @@
 # Promise
 
-**处理异步任务，`Promise`解决es5之前处理异步任务产生的回调地狱的问题**
+
+
+处理异步任务，`Promise`解决es5之前处理异步任务产生的回调地狱的问题
 
 ### Promise的三种状态
 
@@ -95,11 +97,7 @@ let test = new Promise(((resolve, reject) => {
 test.then('123'); //忽略
 ```
 
-
-
 **then方法会返回一个新的promise实例，一般状态为resolve**
-
-
 
 **下面是then方法返回promise实例的几种情况:**
 
@@ -118,8 +116,6 @@ let p4 = Promise.resolve('a');
 let p5 = p4.then();
 console.log(p5); //Promise <fulfilled> a;
 ```
-
-
 
 **then: 传入reslove处理程序参数返回promise实例状态的几种情况：**
 
@@ -176,8 +172,6 @@ let p15 = p14.then(() => new Promise((resolve, reject) => {reject()}));
 console.log(p15); // Promise<reject> undefined
 ```
 
-
-
 **then: 传入reslove处理程序参数返回promise实例状态的几种情况**
 
 - then一般返回的仍是reslove状态的promise实例
@@ -189,3 +183,94 @@ console.log(p17) // Promise<fulfulled> undefined
 ```
 
 - 返回promise、error、输出error、不返回值、返回值与传入resolve处理函数结果一致
+
+### catch
+
+catch实际上就是then方法的reject处理函数的语法糖
+
+```javascript
+//catch: 处理reject状态的promise 其实就是then方法中的reject处理程序的语法糖
+let p1 = Promise.reject('not');
+p1.catch((err) => {
+    console.log('it is a error', err);
+})
+//等同于
+p1.then(undefined, (err) => {
+    console.log('it is a error', err);
+})
+```
+
+**catch 默认同样回返回reslove状态的promise**
+
+### finally
+
+无论promise为fulfilled或reject状态都会执行 无法父promise包装的值
+
+```javascript
+let p2 = Promise.resolve('ok');
+let p3 = Promise.reject('not ok');
+p2.finally(() => {
+    console.log(`fulfilled`)
+});
+p3.finally((value) => {
+    console.log(`reject`)
+}).catch(() => {});
+```
+
+finally 继承父级Promise的状态 包装的值也回继承 忽略finally返回的参数
+
+```javascript
+let p4 = Promise.resolve("i'm ok");
+let newP4 = p4.finally(() =>{});
+console.log(newP4) // Promise<fulfilled> i'm ok
+```
+
+finally 显示的返回reject 或 抛出一个错误 则返回的Promise实例变为reject
+
+```javascript
+let newP5 = p4.finally(() => Promise.reject());
+console.log(newP5) // Peomise<reject> undefined
+```
+
+**then catch finally都是异步处理，后于同步代码执行，他们彼此之间的执行顺序则按照他们定义的位置执行**
+
+### 每个then、catch、finally方法都会返回一个promise 这使得promise可以链式调用
+
+```javascript
+let p1 = Promise.resolve();
+p1.then(() => {
+    console.log(123);
+}).then(() => {
+    console.log(456)
+}).then(() => {
+    console.log(789)
+})
+```
+
+我们可以改写成真正的异步函数:
+
+```javascript
+function  delayFun() {
+    return new Promise(((resolve, reject) => {
+        setTimeout(() => {
+            resolve();
+            console.log('run')
+        }, 1000)
+    }))
+}
+
+let p99 = new Promise(((resolve, reject) => {
+    setTimeout(() => {
+        console.log('run')
+        resolve()
+    }, 1000)
+}))
+
+p99.then(() => {
+    //... do something here
+    delayFun();
+}).then(() => {
+    //... do something here
+    delayFun()
+}).then(delayFun).then(delayFun)
+```
