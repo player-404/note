@@ -274,3 +274,116 @@ p99.then(() => {
     delayFun()
 }).then(delayFun).then(delayFun)
 ```
+
+### Promise.all
+
+primise all 方法 接收一个可迭代的对象(多个primise实例数组)
+
+```javascript
+let all1 = Promise.all([1,2]);
+console.log(all1); // promise<fulfilled> [1,2]
+
+let all3 = Promise.all([]);
+console.log(all3) // promise<fulfilled> [];
+```
+
+不可迭代或不传入参数则会报错
+
+```javascript
+let all2 = Promise.all();
+// console.log(all2) error => undefined is not iterable
+```
+
+**promise all 回返回一个promise**
+
+当参数数组中的promise实例又一个为pending 则返回primise
+
+```javascript
+let all4 = Promise.all([
+    new Promise(() => {}),
+    Promise.resolve(2)
+]);
+console.log(all4) //Promise<pending> undefined
+```
+
+有一个为reject 则返回promise 包装的值只以第一个reject为准
+
+```javascript
+let all5 = Promise.all([
+    Promise.reject(),
+    Promise.resolve(1),
+    Promise.reject(2)
+]);
+console.log(all5) // Promise<reject> undefined
+```
+
+只有全部为resolve状态 则返回Promise
+
+```javascript
+let all6 = Promise.all([
+    Promise.resolve(1),
+    Promise.resolve(),
+    Promise.resolve(2),
+    Promise.resolve(3)
+]);
+console.log(all6)// Promise<fulfilled> [1, undefined, 2, 3]
+```
+
+其他promise会被静默处理
+
+```javascript
+let p1 = Promise.race([
+    Promise.resolve(1),
+    Promise.resolve(2),
+    Promise.reject(3)
+]);
+
+p1.then((value) => {
+    console.log(value);
+}) //并未抛出错误
+```
+
+### Promise.race()
+
+race方法同all方法一般，接受迭代对象为参数,同样水返回一个新的promise实例
+
+```javascript
+// Promise.race 接受可迭代对象为参数 返回一个新的promise
+let p = Promise.race([1, 2]);
+console.log(p);
+```
+
+返回promise实例的状态，取决与参数中最先落定状态的promise实例的状态
+
+```javascript
+let p1 = Promise.race([
+    Promise.resolve('ok'), // 该实例状态先确定，返回promise的状态即为该实例的状态
+    Promise.reject('not ok')
+]);
+console.log(p1); //Promise<fulfilled> ok;
+
+let p2 = Promise.race([
+    Promise.reject('not ok'), // 该实例状态先确定，返回promise的状态即为该实例的状态
+    Promise.resolve('ok')
+]);
+console.log(p2);// Promise<reject> not ok
+
+let p3 = Promise.race([
+    Promise.reject('not ok'), // 该实例状态先确定，返回promise的状态即为该实例的状态
+    setTimeout(() => Promise.resolve('ok'), 1000)
+]);
+console.log(p3); // Promise<reject> not ok
+```
+
+其他promise也会被静默处理
+
+```javascript
+//虽然promise状态有 promise参数最先落定的状态决定，但是，其他的promise也会被静默处理
+let p4 = Promise.race([
+    Promise.reject(1),
+   new Promise(((resolve, reject) => setTimeout(reject, 1000)))
+])
+p4.catch((value) => {
+    console.log('error value is', value);
+})
+```
