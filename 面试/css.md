@@ -89,7 +89,7 @@ overflow: auto
 
 常用的有：
 
-* visibity: 不为none
+* overflow: 不为none
 * position: absoulte或fixed
 * display: flex 或 inline-block
 * float: 不为none
