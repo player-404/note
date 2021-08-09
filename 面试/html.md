@@ -106,3 +106,113 @@ Doctype声明于文档最前面，告诉浏览器以何种方式来渲染页面�
 
 严格模式的排版和JS 运作模式是 以该浏览器支持的最高标准运行。
 
+
+
+### `<img>的title和alt有什么区别`
+
+- 通常当鼠标滑动到元素上的时候显示
+- `alt`是`<img>`的特有属性，是图片内容的等价描述，用于图片无法加载时显示、读屏器阅读图片。可提图片高可访问性，除了纯装饰图片外都必须设置有意义的值，搜索引擎会重点分析。
+
+
+
+### `HTTP的几种请求方法用途`
+
+- `GET`方法
+  - 发送一个请求来取得服务器上的某一资源
+- `POST`方法
+  - 向`URL`指定的资源提交数据或附加新的数据
+- `PUT`方法
+  - 跟`POST`方法很像，也是想服务器提交数据。但是，它们之间有不同。`PUT`指定了资源在服务器上的位置，而`POST`没有
+- `HEAD`方法
+  - 只请求页面的首部
+- `DELETE`方法
+  - 删除服务器上的某资源
+- `OPTIONS`方法
+  - 它用于获取当前`URL`所支持的方法。如果请求成功，会有一个`Allow`的头包含类似`“GET,POST”`这样的信息
+- `TRACE`方法
+  - `TRACE`方法被用于激发一个远程的，应用层的请求消息回路
+- `CONNECT`方法
+  - 把请求连接转换到透明的`TCP/IP`通道
+
+
+
+### `HTTP状态码及其含义`
+
+`1XX`：信息状态码
+
+- `100 Continue` 继续，一般在发送`post`请求时，已发送了`http header`之后服务端将返回此信息，表示确认，之后发送具体参数信息
+
+`2XX`：成功状态码
+
+- `200 OK` 正常返回信息
+- `201 Created` 请求成功并且服务器创建了新的资源
+- `202 Accepted` 服务器已接受请求，但尚未处理
+
+`3XX`：重定向
+
+- `301 Moved Permanently` 请求的网页已永久移动到新位置。
+- `302 Found` 临时性重定向。
+- `303 See Other` 临时性重定向，且总是使用 `GET` 请求新的 `URI`。
+- `304 Not Modified` 自从上次请求后，请求的网页未修改过。
+
+`4XX`：客户端错误
+
+- `400 Bad Request` 服务器无法理解请求的格式，客户端不应当尝试再次使用相同的内容发起请求。
+- `401 Unauthorized` 请求未授权。
+- `403 Forbidden` 禁止访问。
+- `404 Not Found` 找不到如何与 `URI` 相匹配的资源。
+
+`5XX`:服务器错误
+
+- `500 Internal Server Error` 最常见的服务器端错误。
+- `503 Service Unavailable` 服务器端暂时无法处理请求（可能是过载或维护）。
+
+
+
+### 请描述一下 `cookies`，`sessionStorage` 和 `localStorage` 的区别？
+
+- `cookie`是网站为了标示用户身份而储存在用户本地终端（Client Side）上的数据（通常经过加密）
+- cookie数据始终在同源的http请求中携带（即使不需要），记会在浏览器和服务器间来回传递
+- `sessionStorage`和`localStorage`不会自动把数据发给服务器，仅在本地保存
+- 存储大小：
+  - `cookie`数据大小不能超过4k
+  - `sessionStorage`和`localStorage`虽然也有存储大小的限制，但比`cookie`大得多，可以达到5M或更大
+- 有期时间：
+  - `localStorage` 存储持久数据，浏览器关闭后数据不丢失除非主动删除数据
+  - `sessionStorage` 数据在当前浏览器窗口关闭后自动删除
+  - `cookie` 设置的`cookie`过期时间之前一直有效，即使窗口或浏览器关闭
+
+
+
+### `html5有哪些新特性、移除了那些元素？`
+
+- `HTML5` 现在已经不是 `SGML` 的子集，主要是关于图像，位置，存储，多任务等功能的增加
+  - 新增选择器 `document.querySelector`、`document.querySelectorAll`
+  - 拖拽释放(`Drag and drop`) API
+  - 媒体播放的 `video` 和 `audio`
+  - 本地存储 `localStorage` 和 `sessionStorage`
+  - 离线应用 `manifest`
+  - 桌面通知 `Notifications`
+  - 语意化标签 `article`、`footer`、`header`、`nav`、`section`
+  - 增强表单控件 `calendar`、`date`、`time`、`email`、`url`、`search`
+  - 地理位置 `Geolocation`
+  - 多任务 `webworker`
+  - 全双工通信协议 `websocket`
+  - 历史管理 `history`
+  - 跨域资源共享(CORS) `Access-Control-Allow-Origin`
+  - 页面可见性改变事件 `visibilitychange`
+  - 跨窗口通信 `PostMessage`
+  - `Form Data` 对象
+  - 绘画 `canvas`
+- 移除的元素：
+  - 纯表现的元素：`basefont`、`big`、`center`、`font`、 `s`、`strike`、`tt`、`u`
+  - 对可用性产生负面影响的元素：`frame`、`frameset`、`noframes`
+- 支持`HTML5`新标签：
+  - `IE8/IE7/IE6`支持通过`document.createElement`方法产生的标签
+  - 可以利用这一特性让这些浏览器支持`HTML5`新标签
+  - 浏览器支持新标签后，还需要添加标签默认的样式
+- 当然也可以直接使用成熟的框架、比如`html5shim`
+
+**如何区分 HTML 和 HTML5**
+
+- `DOCTYPE`声明、新增的结构元素、功能元素
