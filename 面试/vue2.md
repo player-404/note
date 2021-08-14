@@ -79,5 +79,74 @@
 
 
 
-### 4. MVVM的理解
+### 4. 页面组件加载会执行哪些声明周期
+
+* beforeCreate
+
+* created
+
+  可以访问data, 不能访问dom
+
+* beforeMounte
+
+* mounted
+
+  可以访问dom与data
+
+
+
+### 5. 生命周期的使用ß
+
+created => 请求数据
+
+mounted => dom操作
+
+
+
+### 6. ref
+
+获取dom元素
+
+
+
+### 7.组件传值
+
+Props/emit. Provide/inject  eventBus
+
+
+
+### 8. 动态路由
+
+路由之后添加`:参数`， 该参数会添加到route.params中
+
+```javascript
+{
+  path:'/about/:id',
+  name:'about',
+  component: () => import('...')
+}
+
+
+//组件中直接使用this.$route.params.id获取
+```
+
+
+
+### 9. Keep-alive
+
+使用keep-alive会缓存组件
+
+此时会多出两个生命周期 `actived`  `deactived`
+
+添加了keep-alive的执行顺序：beforeCreate => created => beforeMounte => mounted => actived
+
+
+
+### 10.nextTick
+
+dom加载完毕之后执行其中的回调函数
+
+
+
+### 11. vue中data为什么是一个对象
 
