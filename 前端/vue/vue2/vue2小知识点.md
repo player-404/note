@@ -99,3 +99,56 @@ class可以接受一个数组列表
 
 一般来说，`v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销。因此，如果需要非常频繁地切换，则使用 `v-show` 较好；如果在运行时条件很少改变，则使用 `v-if` 较好。
 
+
+
+### 6. 过滤器Filter
+
+filter可以对指定的值进行修改，使用`|`表示，可以用在`{{}}`内与`v-bind`中
+
+```html
+<body>
+    <div id="app">
+        <span>{{name | customFilter}}</span> // name会作为参数传递给过滤器函数 customFilter
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+        new Vue({
+            el: "#app",
+            data: {
+                name: 'zhangsan'
+            },
+            filters: {
+                customFilter(value) {
+                    if (!value) return;
+                    let newValue = value.trim().toUpperCase();
+                    return newValue
+                }
+            }
+        })
+    </script>
+</body>
+```
+
+<img src="/Users/tom/Library/Application Support/typora-user-images/截屏2021-08-15 上午9.28.15.png" alt="截屏2021-08-15 上午9.28.15" style="zoom:50%;" />
+
+### 7.v-pre
+
+添加该指令的元素中的模版将不会被渲染 (加快编译)
+
+```vue
+<template>
+  <div id="app">
+      <span v-pre>{{text}}</span>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  data: () =>({
+    text: '这里是一段文字'
+  })
+}
+</script>
+```
+
+<img src="/Users/tom/Library/Application Support/typora-user-images/截屏2021-08-15 上午10.40.15.png" alt="截屏2021-08-15 上午10.40.15" style="zoom:50%;" />
