@@ -24,7 +24,7 @@
 
 ### 2.v-text
 
-
+添加文本节点
 
 ### 3. 动态属性
 
@@ -152,3 +152,15 @@ export default {
 ```
 
 <img src="/Users/tom/Library/Application Support/typora-user-images/截屏2021-08-15 上午10.40.15.png" alt="截屏2021-08-15 上午10.40.15" style="zoom:50%;" />
+
+
+
+### 8.路由懒加载
+
+跳转到该路由时，再去加载路由，从而提高性能
+
+```javascript
+component: () => import(/* webpackChunkName: "about" */ '../views/About.vue') 
+//import(...) 懒加载方式
+```
+
