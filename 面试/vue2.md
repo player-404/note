@@ -149,11 +149,12 @@ dom加载完毕之后执行其中的回调函数
 
 
 
-### 11. vue中data为什么是一个对象
+### 11. vue中data为什么是一个函数
 
 `data` 必须声明为返回一个初始数据对象的函数，因为组件可能被用来创建多个实例。如果 `data` 仍然是一个纯粹的对象，则所有的实例将**共享引用**同一个数据对象！通过提供 `data` 函数，每次创建一个新实例后，我们能够调用 `data` 函数，从而返回初始数据的一个全新副本数据对象。
 
-
+- 根实例对象`data`可以是对象也可以是函数（根实例是单例），不会产生数据污染情况
+- 组件实例对象`data`必须为函数，目的是为了防止多个组件实例对象之间共用一个`data`，产生数据污染。采用函数的形式，`initData`时会将其作为工厂函数都会返回全新`data`对象
 
 ### 12.MVVM是什么？和MVC有和区别
 
@@ -462,3 +463,228 @@ Vue提供的keyCode：
 <input type="text" @keyup.ctrl.67="shout(4)">
 ```
 
+
+
+### 14.Vue的理解
+
+#### 一、什么是spa
+
+单页面应用，所有必要的代码都通过单页面加载，根据用户的操作动态加载资源，而不会导致页面重新加载
+
+#### 二、MPA和SPA的区别
+
+多页应用MPA，每个页面都是一个主页面，都是独立的当我们在访问另一个页面的时候，都需要重新加载`html`、`css`、`js`文件
+
+#### [#](https://vue3js.cn/interview/vue/spa.html#单页应用与多页应用的区别)单页应用与多页应用的区别
+
+|                 | 单页面应用（SPA）         | 多页面应用（MPA）                   |
+| :-------------- | :------------------------ | :---------------------------------- |
+| 组成            | 一个主页面和多个页面片段  | 多个主页面                          |
+| 刷新方式        | 局部刷新                  | 整页刷新                            |
+| url模式         | 哈希模式                  | 历史模式                            |
+| SEO搜索引擎优化 | 难实现，可使用SSR方式改善 | 容易实现                            |
+| 数据传递        | 容易                      | 通过url、cookie、localStorage等传递 |
+| 页面切换        | 速度快，用户体验良好      | 切换加载资源，速度慢，用户体验差    |
+| 维护成本        | 相对容易                  | 相对复杂                            |
+
+#### 单页应用优缺点
+
+优点：
+
+- 具有桌面应用的即时性、网站的可移植性和可访问性
+- 用户体验好、快，内容的改变不需要重新加载整个页面
+- 良好的前后端分离，分工更明确
+
+缺点：
+
+- 不利于搜索引擎的抓取
+
+- 首次渲染速度相对较慢
+
+  
+
+
+
+### 15.v-if与v-show的区别
+
+手段：v-if是动态的向DOM树内添加或者删除DOM元素；v-show是通过设置DOM元素的display样式属性控制显隐
+
+编译过程：v-if切换有一个局部编译/卸载的过程，切换过程中合适地销毁和重建内部的事件监听和子组件；v-show只是简单的基于css切换
+
+编译条件：v-if是惰性的，如果初始条件为假，则什么也不做；只有在条件第一次变为真时才开始局部编译（编译被缓存？编译被缓存后，然后再切换的时候进行局部卸载); v-show是在任何条件下（首次条件是否为真）都被编译，然后被缓存，而且DOM元素保留
+
+性能消耗：v-if有更高的切换消耗；v-show有更高的初始渲染消耗
+
+使用场景：v-if适合运营条件不大可能改变；v-show适合频繁切换
+
+相同点 v-show 都可以动态控制着dom元素的显示隐藏
+
+不同点：v-if 的显示隐藏是将DOM元素整个添加或删除，v-show 的显示隐藏是为DOM元素添加css的样式display，设置none或者是block，DOM元素是还存在的
+
+在渲染多个元素的时候，可以把一个 元素作为包装元素，并使用v-if 进行条件判断，最终的渲染不会包含这个元素，v-show是不支持 语法
+
+
+
+### 16.Vue挂在实例的过程中发生了什么
+
+- `new Vue`的时候调用会调用`_init`方法
+  - 定义 `$set`、`$get` 、`$delete`、`$watch` 等方法
+  - 定义 `$on`、`$off`、`$emit`、`$off`等事件
+  - 定义 `_update`、`$forceUpdate`、`$destroy`生命周期
+- 调用`$mount`进行页面的挂载
+- 挂载的时候主要是通过`mountComponent`方法
+- 定义`updateComponent`更新函数
+- 执行`render`生成虚拟`DOM`
+- `_update`将虚拟`DOM`生成真实`DOM`结构，并且渲染到页面中
+
+
+
+### 17.Vue生命周期
+
+Vue生命周期总共可以分为8个阶段：创建前后, 载入前后,更新前后,销毁前销毁后，以及一些特殊场景的生命周期
+
+| 生命周期      | 描述                               |
+| :------------ | :--------------------------------- |
+| beforeCreate  | 组件实例被创建之初                 |
+| created       | 组件实例已经完全创建               |
+| beforeMount   | 组件挂载之前                       |
+| mounted       | 组件挂载到实例上去之后             |
+| beforeUpdate  | 组件数据发生变化，更新之前         |
+| updated       | 组件数据更新之后                   |
+| beforeDestroy | 组件实例销毁之前                   |
+| destroyed     | 组件实例销毁之后                   |
+| activated     | keep-alive 缓存的组件激活时        |
+| deactivated   | keep-alive 缓存的组件停用时调用    |
+| errorCaptured | 捕获一个来自子孙组件的错误时被调用 |
+
+使用场景分析
+
+| 生命周期      | 描述                                                         |
+| :------------ | :----------------------------------------------------------- |
+| beforeCreate  | 执行时组件实例还未创建，通常用于插件开发中执行一些初始化任务 |
+| created       | 组件初始化完毕，各种数据可以使用，常用于异步数据获取         |
+| beforeMount   | 未执行渲染、更新，dom未创建                                  |
+| mounted       | 初始化结束，dom已创建，可用于获取访问数据和dom元素           |
+| beforeUpdate  | 更新前，可用于获取更新前各种状态                             |
+| updated       | 更新后，所有状态已是最新                                     |
+| beforeDestroy | 销毁前，可用于一些定时器或订阅的取消                         |
+| destroyed     | 组件已销毁，作用同上                                         |
+
+#### 请求放在created与mounted的区别
+
+`created`是在组件实例一旦创建完成的时候立刻调用，这时候页面`dom`节点并未生成`mounted`是在页面`dom`节点渲染完毕之后就立刻执行的触发时机上`created`是比`mounted`要更早的两者相同点：都能拿到实例对象的属性和方法讨论这个问题本质就是触发的时机，放在`mounted`请求有可能导致页面闪动（页面`dom`结构已经生成），但如果在页面加载前完成则不会出现此情况建议：放在`create`生命周期当中
+
+
+
+### 18.Vue中的v-if和v-for为什么不建议一起使用
+
+`v-for`优先级比`v-if`高
+
+`v-if` 和 `v-for` 同时用在同一个元素上，带来性能方面的浪费（每次渲染都会先循环再进行条件判断）
+
+1. 如果避免出现这种情况，则在外层嵌套`template`（页面渲染不生成`dom`节点），在这一层进行v-if判断，然后在内部进行v-for循环
+
+```vue
+<template v-if="isShow">
+    <p v-for="item in items">
+</template>
+```
+
+2. 如果条件出现在循环内部，可通过计算属性`computed`提前过滤掉那些不需要显示的项
+
+```vue
+computed: {
+    items: function() {
+      return this.list.filter(function (item) {
+        return item.isShow
+      })
+    }
+}
+```
+
+
+
+### 19.动态给vue的data添加一个新的属性时会发生什么？怎样解决？
+
+**现象：**在给已经设置好的data属性，添加新的数据时，不会反应到dom上
+
+```vue
+<template>
+  <div class="about">
+    <div v-for="(key, index) in obj" :key="index">{{key}}</div>
+    <button v-on:click="click">add obj</button>
+  </div>
+</template>
+<script>
+export default {
+  data: () => ({
+    obj: {
+      name: '张三',
+      age: 78
+    }
+  }),
+  methods: {
+    click() {
+      this.obj.des = "这里是加的obj的描述";
+      console.log(this.obj)
+    }
+  }
+}
+</script>
+```
+
+点击按钮之后新添加的des属性并不会反应到dom上，但实际上obj已经有了des属性
+
+<img src="/Users/tom/Library/Application Support/typora-user-images/截屏2021-08-17 下午9.20.59.png" alt="截屏2021-08-17 下午9.20.59" style="zoom:50%;"/>
+
+**原因：** Vue劫持data中的属性添加get与set，但之后新增加的属性不会被劫持，故不会触发set，也就不会通知dep，wtacher也就不会去更新dom，但实际新增加的属性已经增加到data数据中了
+
+原因是一开始`obj`的`foo`属性被设成了响应式数据，而`bar`是后面新增的属性，并没有通过`Object.defineProperty`设置成响应式数据
+
+#### 解决方案
+
+`Vue` 不允许在已经创建的实例上动态添加新的响应式属性
+
+若想实现数据与视图同步更新，可采取下面三种解决方案：
+
+- Vue.set()
+- Object.assign()
+- $forcecUpdated()
+
+### Vue.set()
+
+Vue.set( target, propertyName/index, value )
+
+参数
+
+- `{Object | Array} target`
+- `{string | number} propertyName/index`
+- `{any} value`
+
+返回值：设置的值
+
+通过`Vue.set`向响应式对象中添加一个`property`，并确保这个新 `property`同样是响应式的，且触发视图更新
+
+### Object.assign()
+
+直接使用`Object.assign()`添加到对象的新属性不会触发更新
+
+应创建一个新的对象，合并原对象和混入对象的属性
+
+### $forceUpdate
+
+如果你发现你自己需要在 `Vue`中做一次强制更新，99.9% 的情况，是你在某个地方做错了事
+
+`$forceUpdate`迫使`Vue` 实例重新渲染
+
+PS：仅仅影响实例本身和插入插槽内容的子组件，而不是所有子组件。
+
+### 小结
+
+- 如果为对象添加少量的新属性，可以直接采用`Vue.set()`
+- 如果需要为新对象添加大量的新属性，则通过`Object.assign()`创建新对象
+- 如果你实在不知道怎么操作时，可采取`$forceUpdate()`进行强制刷新 (不建议)
+
+PS：`vue3`是用过`proxy`实现数据响应式的，直接动态添加新属性仍可以实现数据响应式
+
+## 
