@@ -203,7 +203,23 @@ media-query(媒体查询)， 根据不同的屏幕宽度设置跟元素 font-siz
 2. 底部元素设置flot
 3. 底部元素的position的值为absolute/fixed
 
+#### 父子元素magin重合问题
 
+解决：
+
+父元素设置：
+
+* 外层元素添加padding
+
+* overflow: hidden
+
+* border: 1px solid transparent
+
+子元素：
+
+* 内层元素绝对定位 postion:absolute:
+
+* 内层元素 加float:left;或display:inline-block;
 
 ### 11.css浮动问题
 

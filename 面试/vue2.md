@@ -404,14 +404,68 @@ this.$emit('update:foo', newValue)
 
 `sync`修饰符的作用就是，可以简写：
 
-```js
-父组件里
-<children :foo.sync="bar"></children>
+在有些情况下，我们可能需要对一个 prop 进行“双向绑定”。不幸的是，真正的双向绑定会带来维护上的问题，因为子组件可以变更父组件，且在父组件和子组件两侧都没有明显的变更来源。
 
-子组件里
-this.$emit('update:foo', newValue)
-复制代码
+这也是为什么我们推荐以 `update:myPropName` 的模式触发事件取而代之。举个例子，在一个包含 `title` prop 的假设的组件中，我们可以用以下方法表达对其赋新值的意图：
+
 ```
+this.$emit('update:title', newTitle)
+```
+
+然后父组件可以监听那个事件并根据需要更新一个本地的数据 property。例如：
+
+```
+<text-document
+  v-bind:title="doc.title"
+  v-on:update:title="doc.title = $event"
+></text-document>
+```
+
+为了方便起见，我们为这种模式提供一个缩写，即 `.sync` 修饰符：
+
+```vue
+<text-document v-bind:title.sync="doc.title"></text-document>
+```
+
+`传递对象时` 使用`v-bind`
+
+```vue
+<Cus v-bind.sync="obj"/>
+```
+
+子组件
+
+```vue
+<template>
+  <div class="custom">
+      <h1 @click="click">{{name}}</h1>
+      <h2>{{age}}</h2>
+  </div>
+</template>
+
+<script>
+export default {
+    props: {
+        name: String | Number,
+        age: Number
+    },
+    data() {
+        return {
+            num: 0
+        }
+    },
+    methods: {
+        click() {
+            this.num++;
+            this.$emit("update:name", this.num);
+            this.$emit('update:age', this.num);
+        }
+    }
+}
+</script>
+```
+
+
 
 #### 13.keyCode
 
