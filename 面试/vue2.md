@@ -741,4 +741,30 @@ PS：仅仅影响实例本身和插入插槽内容的子组件，而不是所有
 
 PS：`vue3`是用过`proxy`实现数据响应式的，直接动态添加新属性仍可以实现数据响应式
 
-## 
+
+
+### 20.Vue中的key
+
+> key是给每一个vnode的唯一id，也是diff的一种优化策略，可以根据key，更准确， 更快的找到对应的vnode节点
+
+
+
+### 21.vue项目本地开发完成后部署到服务器后报404是什么原因呢？
+
+在history模式下，vue项目打包部署在nginx时会出现404	
+
+#### 原因
+
+vue时单页面应用，构建物都只会产出一个`index.html`
+
+可以根据 `nginx` 配置得出，当我们在地址栏输入 `www.xxx.com` 时，这时会打开我们 `dist` 目录下的 `index.html` 文件，然后我们在跳转路由进入到 `www.xxx.com/login`
+
+关键在这里，当我们在 `website.com/login` 页执行刷新操作，`nginx location` 是没有相关配置的，所以就会出现 404 的情况
+
+###  为什么hash模式下没有问题
+
+router hash` 模式我们都知道是用符号#表示的，如  `website.com/#/login`, `hash` 的值为 `#/login
+
+它的特点在于：`hash` 虽然出现在 `URL` 中，但不会被包括在 `HTTP` 请求中，对服务端完全没有影响，因此改变 `hash` 不会重新加载页面
+
+`hash` 模式下，仅 `hash` 符号之前的内容会被包含在请求中，如 `website.com/#/login` 只有 `website.com` 会被包含在请求中 ，因此对于服务端来说，即使没有配置`location`，也不会返回404错误

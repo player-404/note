@@ -12,7 +12,7 @@
 
 ### 创建promise
 
-使用new关键字创建，传入一个`执行期函数(同步执行)`，状态为`pending`
+使用new关键字创建，传入一个`执行器函数(同步执行)`，状态为`pending`
 
 ```javascript
 let p = new Promise(() => {
