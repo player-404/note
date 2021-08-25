@@ -88,7 +88,7 @@ var getName = function () {
 function A() {
     console.log('A');
     getName = function () {
-        console.log('软猫2号');
+        console.log('软猫3号');
     }
 }
 
@@ -106,7 +106,7 @@ getName(); // 软猫2号
 A.sex(); //  A sex
 new A.sex; // A sex
 A();   // A
-getName(); // 软猫2号
+getName(); // 软猫3号
 new A().sex(); //  A  A protortype
 ```
 

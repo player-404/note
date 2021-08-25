@@ -45,7 +45,7 @@ let p7 = Promise.resolve(new Error('foo'));
 console.log(p7) //Promise<fulfilled>: Error: foo
 ```
 
-**当传入的是另一个Promise则会保留该Promise的状态**
+‼️**当传入的是另一个Promise则会保留该Promise的状态**
 
 ```javascript
 //当传入的是另一个promise则会保留该promise的状态
@@ -97,7 +97,7 @@ let test = new Promise(((resolve, reject) => {
 test.then('123'); //忽略
 ```
 
-**then方法会返回一个新的promise实例，一般状态为resolve**
+‼️**`then方法会返回一个新的promise实例，一般状态为resolve`**
 
 **下面是then方法返回promise实例的几种情况:**
 
@@ -117,7 +117,7 @@ let p5 = p4.then();
 console.log(p5); //Promise <fulfilled> a;
 ```
 
-**then: 传入reslove处理程序参数返回promise实例状态的几种情况：**
+❗️**then: 传入reslove处理程序参数返回promise实例状态的几种情况：**
 
 - 未显式返回任何参数，返回Promise.resolve包装的值为undefined包装的promise实例
 
@@ -217,7 +217,7 @@ p3.finally((value) => {
 }).catch(() => {});
 ```
 
-finally 继承父级Promise的状态 包装的值也回继承 忽略finally返回的参数
+finally 继承父级Promise的状态 包装的值也会继承 忽略finally返回的参数
 
 ```javascript
 let p4 = Promise.resolve("i'm ok");
