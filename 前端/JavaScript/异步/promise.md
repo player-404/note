@@ -41,7 +41,9 @@ console.log(p6)//Promise<fulfilled>: 1
 **即使是error也可成为fulfilled 状态的参数**
 
 ```javascript
-let p7 = Promise.resolve(new Error('foo'));
+let p7 = Promise.resolve(n
+                         
+                         ew Error('foo'));
 console.log(p7) //Promise<fulfilled>: Error: foo
 ```
 
