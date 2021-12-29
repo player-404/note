@@ -105,8 +105,6 @@ static: {
 
 
 
-
-
 #### 模块热替换
 
 * 又称HMR: 不重新加载整个页面，只更新需要更新的部分，可以保留应用的状态不丢失
@@ -116,8 +114,54 @@ static: {
 module.exports = {
    target: "web",
   devServer: {
-    hot: true
+    open: true
   }
 }
+```
+
+​	
+
+#### proxy
+
+"/api": 代理到`http://localhost:8080`详细配置见官网
+
+```javascript
+proxy: {
+      "/api": {
+        target: "http://localhost:8080",
+        secure: true,
+        changeOrigin: true,
+      },
+    },
+```
+
+
+
+#### resolve(解析)`
+
+这些选项能设置模块如何被解析
+
+* alias(路径别名)
+
+​	创建 `import` 或 `require` 的别名，来确保模块引入变得更简单
+
+```javascript
+resolve: {
+    alias: {
+      //将符号@映射为src目录的绝对路径
+      "@": path.resolve(__dirname, "src"),
+    },
+  },
+```
+
+
+
+* extensions
+
+​	尝试按顺序解析这些后缀名。如果有多个文件有相同的名字，但后缀名不同，webpack 会解析列在数组首位的后缀的文件 并跳过其余的后缀(导入文件时，可以省略后缀名)
+
+```javascript
+// 以下文件在导入时，可以省略后缀名
+    extensions: ["js", "vue", "ts", "jsx"],
 ```
 
