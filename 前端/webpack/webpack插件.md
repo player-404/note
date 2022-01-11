@@ -65,5 +65,22 @@ webpack
 
 
 
+#### 3.HtmlWebpackPlugin
+
+打包html
+
+```javascript
+//html打包
+    new HtmlWebpackPlugin({
+      title: "vue app",
+      //输出文件路径及文件名（不支持[name] [ext]等属性）
+      filename: "index.html",
+      //模板文件
+      template: "./src/index.html",
+      //引入文件放在body标签底部
+      inject: "body",
+    }),
+```
+
 
 
