@@ -1,5 +1,6 @@
 # vue3更新指南
-## 1.v-model 替代 sync
+## 1.自定义指令的更新
+### v-model 代替 sync
 * vue2中，当我们想要双向更新子组件的 prop 时, 可以使用.sync修饰符
 
 ```ts
@@ -72,4 +73,22 @@ const click = (): void => {
 </template>  
 <style lang="scss" scoped></style>
 ```
+
+### 钩子函数的更新
+- vue2钩子函数
+	- bind
+	- inserted
+	- update
+	- componentupdate
+	- unbind
+- vue3钩子函数
+	- created
+	- beforeMount
+	- mounted
+	- beforeUpdate
+	- updated
+	- beforeUnmounted
+	- unmounted
+
+另外，binding参数中，vue3增加了instance与dir参数，去除了 name 与 expression参数
 
