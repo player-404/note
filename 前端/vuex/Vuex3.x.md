@@ -795,9 +795,61 @@ export default {
 ```
 
 
+## 使用registerModule方法注册模块
+可以使用 store 实例的 registerModule 方法注册模块, 而不是直接注在module对象中
+```js
+import Vue from "vue";
+import Vuex from "vuex";
 
+import space from "./modules/namespace";
+Vue.use(Vuex);
 
+const store = new Vuex.Store({
+  state: {},
+  getters: {},
+  mutations: {
+    same(state, payload) {
+      console.log("gobal mutation is running");
+    },
+  },
+  actions: {},
+});
 
+//注册模块
+store.registerModule("space", space);
 
+export default store;
+```
 
+## 使用unregisterModule卸载模块
+你也可以使用 `store.unregisterModule(moduleName)` 来动态卸载模块。注意，你不能使用此方法卸载静态模块（即创建 store 时声明的模块）。
+```js
+...
+store.unregisterModule('space');
+```
+
+# 保留 state 
+在注册一个新 module 时，你很有可能想保留过去的 state，例如从一个服务端渲染的应用保留 state。你可以通过 `preserveState` 选项将其归档：`store.registerModule('a', module, { preserveState: true })`。
+
+当你设置 `preserveState: true` 时，该模块会被注册，action、mutation 和 getter 会被添加到 store 中，但是 state 不会。这里假设 store 的 state 已经包含了这个 module 的 state 并且你不希望将其覆写。
+
+# 模块重用
+
+有时我们可能需要创建一个模块的多个实例，例如：
+
+-   创建多个 store，他们公用同一个模块 (例如当 `runInNewContext` 选项是 `false` 或 `'once'` 时，为了[在服务端渲染中避免有状态的单例](https://ssr.vuejs.org/en/structure.html#avoid-stateful-singletons))
+-   在一个 store 中多次注册同一个模块
+
+如果我们使用一个纯对象来声明模块的状态，那么这个状态对象会通过引用被共享，导致状态对象被修改时 store 或模块间数据互相污染的问题。
+
+实际上这和 Vue 组件内的 `data` 是同样的问题。因此解决办法也是相同的——使用一个函数来声明模块状态（仅 2.3.0+ 支持）：
+
+```js
+const MyReusableModule = {
+  state: () => ({
+    foo: 'bar'
+  }),
+  // mutation、action 和 getter 等等...
+}
+```
 
