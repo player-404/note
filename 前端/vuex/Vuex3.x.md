@@ -195,6 +195,8 @@ export default {
 ```
 当使用对象风格的提交方式，整个对象都作为载荷传给 mutation 函数
 
+> 对于全局的同名 Mutation , 后面的 Mutation 方法 会覆盖之前的方法
+
 ### 辅助函数调用方式
 与 `state` 与 `getters`不同的是，mutation 的辅助函数写在 `methods`中
 ```vue
@@ -294,8 +296,6 @@ Action 函数接受一个与` store 实例`具有`相同方法`和`属性`的 co
 包含：
 	- state: 状态
 	- getters:  计算属性
-	- mutations:
-	- actions
 	- commit: 提交mutaion的方法
 	- dispatch: 提交actions的方法
 context 可以使用es6语法进行解构
@@ -431,14 +431,14 @@ actions: {
 }
 ```
 
-> 一个 `store.dispatch` 在不同模块中可以触发多个 action 函数。在这种情况下，只有当所有触发函数完成后，返回的 Promise 才会执行。
-
+> - 一个 `store.dispatch` 在不同模块中可以触发多个 action 函数。在这种情况下，只有当所有触发函数完成后，返回的 Promise 才会执行。
+> - 对于全局的 同名Action, 后面的 Action 同名方法会覆盖之前的
 
 # module
 由于使用单一状态树，应用的所有状态会集中到一个比较大的对象。当应用变得非常复杂时，store 对象就有可能变得相当臃肿。
 为了解决以上问题，Vuex 允许我们将 store 分割成**模块（module）**。每个模块拥有自己的 state、mutation、action、getter、甚至是嵌套子模块
 
-## 局部state
+## 模块下的state
 使用模块后，模块中的state将自动变为局部,最终`模块内的state将以对象属性的方式合并到全局的state中`
 例如：在模块 test 的 state 中创建了 name 属性，在模块 test1 的 state 中创建了 name 属性，
 合并后如下
@@ -482,4 +482,322 @@ export default {
 }
 </script>
 ```
+
+## 模块下的getters
+模块中的getters将直接合并到全局的getters，`注意: getters中不允许同名的getter，含有同名的getter只会执行第一个，并会报错`
+
+- 模块中的gatters接收三个参数
+	- state  模块中的state
+	- getters 合并后的 getter, 全局与局部的 getter 都能获取
+	- rootState  全局的state, 合并后的全局state
+```js
+getters: {
+	myGetter(state, getters, rootState) {
+	...
+	}
+}
+```
+
+## 模块下的mutation
+模块中的 Mutation 与 Getter 一致，都是`直接合并`到 `全局` 的`Mutation`中, 与 Getter 不同的是，`Mutation 允许同名`，触发同名的 Mutation 时，`都会触发`， 全局的 Mutation 中， 同名的 Mutation 方法，后面的 Mutation 覆盖之前的 Mutation 方法
+```js
+mutations: {
+	// 同名的 mutation 都会触发
+	Mua() {
+	}，
+	//允许同名
+	Mua() {
+	}
+}
+```
+
+- 参数 （接收两个参数）
+	- state 局部的state
+	- payload 参数 由用户传入
+
+## 模块下的Action
+模块中的 Action 与 Mutation 规则一致， 都会直接合并到 全局 的 Action 中，并且允许同名的Action, 触发同名的 Action 时, `两个 Action 都会执行`，`全局的 Action中, 同名的 Action, 后面的Action方法会覆盖之前的方法`
+```js
+actions: {
+	action() {},
+	action() {
+		// 两个都会执行
+	}
+}
+```
+- 参数
+	- context
+		-  rootState 全局的state(合并后)
+		- state 局部 state
+		- getters  全局的getters(合并后)
+		- commit 分发mutation (模块中的commit 可以提交全局的)
+		- dispatch 分发 action  (dispatch 可以提交全局的)
+	- paylaod 用户传递的参数
+
+
+> **模块于全局存在同名的mutaions或actions时，二者都会执行**
+
+# module 的命名空间
+## 使用命名空间
+- **默认情况下，模块内部的 action 和 mutation 仍然是注册在 全局命名 空间的(getters 也是如此) ——这样使得多个模块能够对同一个 action 或 mutation 作出响应**
+- 如果希望你的模块具有更高的封装度和复用性，你可以通过添加 `namespaced: true` 的方式使其成为带命名空间的模块。当模块被注册后，它的所有 getter、action 及 mutation 都会自动根据模块注册的路径调整命名(变成真正意义上的局部)
+
+创建一个space命名空间
+space.js
+```js
+export default {
+  namespaced: true, // 开启命名空间
+  state: {
+    name: "sapce",
+  },
+  getters: {
+    info(state, getters, rootState, rootGetters) {
+      console.log("root getters", rootGetters);
+      return `this is ${state.name} module`;
+    },
+  },  
+  mutations: {
+    change(state, payload) {
+      console.log("namespace mutations");
+      state.name = "changed name";
+    },
+  },
+  actions: {
+    changeAction({ rootState, rootGetters }, payload) {
+      console.log("rootState", rootState);
+      console.log("rootGetters", rootGetters);
+      console.log("this is  namespaced payload");
+    },
+    subGobalMutation({ rootState, rootGetters, commit }, payload) {
+      console.log("rootState", rootState);
+      console.log("rootGetters", rootGetters);
+      commit("same", { name: "这是模块传递的参数" }, { root: true });
+    },
+  },
+};
+```
+index.js
+```js
+import Vue from "vue";
+import Vuex from "vuex";
+
+import space from "./modules/namespace";
+Vue.use(Vuex);
+
+export default new Vuex.Store({
+  state: {},
+  getters: {},
+  mutations: {
+    same(state, payload) {
+      console.log("gobal mutation is running");
+    },
+  },
+  actions: {},
+  modules: {
+    space, // 注册名为space的模块
+  },
+})
+```
+
+## 命名空间下模块的中的store属性调用
+### state
+访问state余未添加命名空间的模块一般, state会以对象的方式被合并到全局state，以模块名为对象名，模块state中的值为属性值
+- 普通访问
+```js
+...
+this.$store.state.space.name
+```
+- 辅助函数
+```js
+{
+	...mapState(['space'])
+}
+...
+{
+	this.space.name;
+}
+```
+- 传入命名空间的辅助函数
+模块的空间名称字符串作为第一个参数传递给辅助函数
+```js
+computed: {
+	...mapTSate('space', ['name'])
+}
+...
+{
+	this.name
+}
+```
+### getters
+#### 参数
+getters 将会接收两个新的参数，可以接收四个参数
+- state 局部state
+- getters 局部getters
+- rootState 全局state
+- rootGetters 全局 getters
+```js
+export default {
+  namespaced: true,
+  getters: {
+	info(state, getters, rootState, rootGetters) {}
+  }
+}
+```
+
+#### 使用局部getters
+使用开启命名空间模块的getters时，以 `[模块名/getter]`的方式调用
+调用space模块下的 info getter
+- 普通调用方式
+```js
+...
+{
+	this.$store.getters['sapce/info']
+}
+...
+```
+- 辅助函数
+```js
+...
+computed: {
+	...mapGetters(['space/info'])
+}
+...
+{
+	this['space/info']
+}
+...
+```
+- 传入命名空间的辅助函数
+模块的空间名称字符串作为第一个参数传递给辅助函数
+```js
+{
+	...mapGetters("space", ["info"]),
+}
+...
+{
+	console.log(this.info);
+}
+
+```
+
+### mutation
+开启命名空间的模块 mutations 与 getters一样， 以 [moduleName/mutationName]方式调用
+调用 space 模块下的mutation的 change 方法
+- 普通方法调用
+```js
+{
+	this.commit('space/change', {name: '这是用户传递的payload参数'})
+}
+```
+- 使用辅助函数调用
+```js
+methods: {
+	...mapMutations(['space/change'])
+}
+...
+{
+	this['space/change']()
+}
+```
+- 传入命名空间的辅助函数
+模块的空间名称字符串作为第一个参数传递给辅助函数
+```js
+{
+...mapMutations("space", ["change"]),
+}
+...
+{
+	this.change();
+}
+```
+
+
+#### 参数
+参数与普通模块参数一致
+
+### action
+开启命名空间的模块 action 与 getters一样， 以 [moduleName/actionName]方式调用
+调用sapce模块下的action中的changeAction方法
+- 普通调用
+```js
+...
+{
+  this.$store.commit('space/changeAction')
+}
+...
+```
+- 辅助函数调用
+```js
+methods: {
+	...mapActions(['space/changeAction'])
+}
+...
+{
+	this['space/changeAction']();
+}
+```
+- 传入命名空间的辅助函数
+模块的空间名称字符串作为第一个参数传递给辅助函数
+```js
+{
+	...mapActions("space", ["changeAction"])
+}
+...
+{
+	this.changeAction();
+}
+```
+
+#### 模块调用全局 mutaion/action
+在开启命名空间的模块中的action中调用全局的mutation或action, 将 `{root: true}` 作为第三个参数传递给 mutation 或 action
+```js
+subGobalMutation({ rootState, rootGetters, commit }, payload) {
+	//调用全局的mutation
+    commit("same", { name: "这是模块传递的参数" }, { root: true });
+	//调用全局的action
+	dispatch('changeAction', {name: '这里时传递给全局action的参数'}, {root: true})
+		
+    },
+```
+
+### 参数
+开启命名空间的模块的action额外接收 rootState与rootGetters为参数
+- dispatch
+- commit
+- state,
+- rootState,
+- getters
+- rootGetters
+
+## createNamespacedHelpers
+你可以通过使用 `createNamespacedHelpers` 创建基于某个命名空间辅助函数。它返回一个对象，对象里有新的绑定在给定命名空间值上的组件绑定辅助函数：
+```js
+mport { createNamespacedHelpers } from 'vuex'
+
+const { mapState, mapActions } = createNamespacedHelpers('some/nested/module')
+
+export default {
+  computed: {
+    // 在 `some/nested/module` 中查找
+    ...mapState({
+      a: state => state.a,
+      b: state => state.b
+    })
+  },
+  methods: {
+    // 在 `some/nested/module` 中查找
+    ...mapActions([
+      'foo',
+      'bar'
+    ])
+  }
+}
+```
+
+
+
+
+
+
+
 
