@@ -164,3 +164,5 @@ component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
 //import(...) 懒加载方式
 ```
 
+### 9.$set & $delete
+为data中的响应式对象添加属性，使用 set，删除使用 delete 确保添加的属性时响应式的，使用Object[propertyName]的方法，vue无法监听到
