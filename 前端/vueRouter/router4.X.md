@@ -564,8 +564,8 @@ const routes = [
 **我们也可以使用 props 接收路由的动态参数***
 
 **使用**
-
-- 普通路由
+参数：
+- 参数为boolean
 在路由中添加props字段
 ```js
 const routes = [
@@ -604,6 +604,42 @@ const routes = [
 			//设置命名路由的props
 			propsCom: true
 		}
+	}
+]
+```
+- 参数为普通对象
+当props为对象时，除了传递动态参数给组件，在props中定义的其他属性，会作为静态数据传递给组件
+```js
+const routes = [
+	{
+		name: 'home',
+		path: '/home/:id',
+		componet: ...,
+		props: {
+			id: 123,
+			names: '张三'
+		}
+	}
+]
+```
+
+```vue
+<script>
+	export default {
+		props: ['id', 'names']
+	}
+</script>
+```
+
+- 函数模式
+props也可以接收函数，`$route`作为参数传递给该函数
+```js
+const routes = [
+	{
+		name: 'home',
+		path: '/home',
+		//该函数返回一个对象
+		props: (route) => ({query: route.query.id}) 
 	}
 ]
 ```
