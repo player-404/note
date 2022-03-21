@@ -478,3 +478,132 @@ const routes = {
     ],
   }
   ```
+
+### 7. 重定向
+使用关键字`redirect`可以对路由进行重定向
+重定向本身是不需要引入`component`，因为它是指访问一个路由时，转到指定的路由，而这个指定的路由时路由表中注册过的路由
+
+redirect参数：
+- path字符串或对象
+```js
+const routes = [
+ {
+    name: "redirect",
+    path: "/redirect",
+    //重定向至setting路由，redirect可以时路径字符串，也可以是对象
+    redirect: {
+      name: "setting",
+    },
+    //重定向的路由必须注册了
+  {
+    path: "/setting",
+    name: "setting",  
+    component: ...
+    }
+  ]
+```
+- 函数，接受一个to参数，该参数代表当前$route
+```js
+const routes = [
+	{
+    name: "fun",
+    path: "/fun",
+    redirect: (to) => {
+      console.log(to);
+      return { path: "/", query: { name: to.name } };
+    },
+  ]
+```
+
+### 8.别名
+我们可以为path(路径)设置别名，之后我们就可以使用别名访问路由
+
+**alias接收一个数组**
+
+根路由使用别名：
+```js
+const routes = [
+	{
+		name: 'home',
+		path: '/home/:id',
+		component: ...,
+		alias: ['/haha', '/heihei/:id']
+	}
+]
+```
+- 访问别名`/haha`，会跳转到路由home中，但不会携带参数，因为别名中并未有设置参数，只有访问别名`/heihei/:id`才能懈怠参数
+- 根路由必须以`/`开头，以`path`的格式
+
+子路由使用别名：
+```js
+const routes = [
+	{
+    name: "test2",
+    path: "/test2",
+    component: () => import("../views/Test2.vue"),
+    children: [
+      {
+        name: "people",
+        path: "/people",
+        //设置别名
+        alias: ["/t", "haha"],
+        component: () => import("../views/People.vue"),
+      },
+    ],
+  }
+  ]
+```
+设置子路由可以携带`\`，也不可不携带
+- 携带 `\`
+如上面代码，可以直接使用别名`/t`, `$router.push('/t')`访问test2的子路由，可以直接省略父路由路径，而直接使用别名路径
+- 不携带 `\`
+不携带 `\`则要使用父路径加别名的完整路径才能访问，`$router.puah('/test2/haha')`
+
+### 9.路由组件参数
+我们可以向路由中传递动态参数，参数存储在`$route.params`对象中
+**我们也可以使用 props 接收路由的动态参数***
+
+**使用**
+
+- 普通路由
+在路由中添加props字段
+```js
+const routes = [
+	{
+		name: 'home',
+		path: '/home/:id',
+		props: true,
+		component: ...
+	}
+]
+```
+在组件的`props`选项中接受参数，用法参见`props`选项
+```vue
+	<script>
+		export default {
+			// 参数名要一致
+			props: ['id']
+		}
+	</script>
+```
+
+- 命名路由
+在命名路由中，则需要将props字段设置为对象，在该对象中设置
+```js
+const routes = [
+	{
+		name: 'home',
+		path: '/home',
+		components: {
+			default: () => import(...),
+			propsCom: () => import(...)
+		},
+		// 在props对象中设置
+		props: {
+			default: true,
+			//设置命名路由的props
+			propsCom: true
+		}
+	}
+]
+```
