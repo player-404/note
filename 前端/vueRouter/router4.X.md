@@ -643,3 +643,72 @@ const routes = [
 	}
 ]
 ```
+
+### 10.历史记录模式
+可以手动将vue-router 修改为 history 或 hash模式
+
+#### 10.1 vue2中的修改
+vue2 中，在 `new VueRouter`中设置 `mode`属性
+```js
+const router = new VueRouter({
+	//将mode属性设置为 history 或 hash
+	mode: 'hash'
+})
+```
+
+#### 10.2 vue3中的修改
+vue3中，在 createRouter中 设置 history属性
+- hash: createWebHashHistory
+- history: createWebHsitory
+```js
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    //...
+  ],
+})
+```
+
+#### 10.3 history模式下生产环境的问题
+由于我们的应用是一个单页的客户端应用，history模式下,  如果没有适当的服务器配置，用户在浏览器中直接访问 `https://example.com/user/id`，就会得到一个 404 错误
+
+**解决**
+在服务端进行设置
+
+- nginx
+``` json
+location / {
+  try_files $uri $uri/ /index.html;
+}
+```
+
+- nodejs
+```js
+const http = require('http')
+const fs = require('fs')
+const httpPort = 80
+
+http
+  .createServer((req, res) => {
+    fs.readFile('index.html', 'utf-8', (err, content) => {
+      if (err) {
+        console.log('We cannot open "index.html" file.')
+      }
+
+      res.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+      })
+
+      res.end(content)
+    })
+  })
+  .listen(httpPort, () => {
+    console.log('Server listening on: http://localhost:%s', httpPort)
+  })
+```
+- express + nodejs
+对于 Node.js/Express，可以考虑使用 [connect-history-api-fallback 中间件](https://github.com/bripkens/connect-history-api-fallback)。
+
+### 11. 路由守卫
