@@ -121,6 +121,7 @@ const routes = [
 ]
 ```
 
+
 ### 3.路由匹配语法
 **我们可以在路由路径中使用正则，匹配路由**
 #### 3.1 参数中的自定义正则
@@ -265,6 +266,8 @@ const routes = [
 	}
 ]
 ```
+
+
 ### 5. 编程式导航
 **什么是编程式导航？**
 使用 js Api 方式访问路由实例叫做编程式导航
@@ -397,6 +400,7 @@ export default {
 ```
 > 注意：使用replace无法前进或后退
 
+
 ### 6. 命名视图
 **什么是命名视图**
 为 `router-view` 命名，添加 `name` 属性，就是命名试图，如同具名插槽一般
@@ -479,6 +483,7 @@ const routes = {
   }
   ```
 
+
 ### 7. 重定向
 使用关键字`redirect`可以对路由进行重定向
 重定向本身是不需要引入`component`，因为它是指访问一个路由时，转到指定的路由，而这个指定的路由时路由表中注册过的路由
@@ -514,6 +519,7 @@ const routes = [
     },
   ]
 ```
+
 
 ### 8.别名
 我们可以为path(路径)设置别名，之后我们就可以使用别名访问路由
@@ -558,6 +564,7 @@ const routes = [
 如上面代码，可以直接使用别名`/t`, `$router.push('/t')`访问test2的子路由，可以直接省略父路由路径，而直接使用别名路径
 - 不携带 `\`
 不携带 `\`则要使用父路径加别名的完整路径才能访问，`$router.puah('/test2/haha')`
+
 
 ### 9.路由组件参数
 我们可以向路由中传递动态参数，参数存储在`$route.params`对象中
@@ -711,4 +718,206 @@ http
 - express + nodejs
 对于 Node.js/Express，可以考虑使用 [connect-history-api-fallback 中间件](https://github.com/bripkens/connect-history-api-fallback)。
 
+
 ### 11. 路由守卫
+**当一个导航触发时，全局前置守卫按照`创建顺序调用`。`守卫是异步解析执行`，此时导航在所有守卫 `resolve` 完之前一直处于 `等待中`。**
+
+**守卫的回调函数为 pomise 函数**
+
+
+#### 11.1 全局路由守卫
+全局路由守卫写在全局
+
+##### 11.1.1 全局前置守卫 beforeEach
+在跳转路由之前触发，该守卫为全局，
+**回调参数**
+- to：即将进入的路由对象
+- form：当前导航正要离开的路由
+- next: 该方法用来 `resolve` 守卫钩子，接收 路由对象、boolean、Error对象、 path字符串
+- return **vueRouter 4.x 独有**
+	在vueRouter 中，可以在守卫回调中返回值，与next接受的参数一致，效果也一致
+```js
+router.beforeEach((to, from, next) => {
+//不调用该方法，路由会一直处于等待的状态中，会执行下一个路由
+	next();
+})
+```
+
+##### 11.1.2 全局解析守卫 beforeResolve
+在导航被确认之前，**同时在所有组件内守卫和异步路由组件被解析之后**，解析守卫就被调用
+```js
+router.beforeResolve((to, from, next) => {
+	next();
+})
+```
+
+
+##### 11.1.3 全局后置守卫 afterEach
+在进入路由之后触发， 它不接受next函数作为第三个参数，或可以返回值，所以不能更改路由
+
+后置守卫一般用来对页面的分析，页面标题的更改等或其他更多功能
+
+**在 vueRouter 4.x 中 afterEach 接受  `failure` 作为第三个参数，一般用作错误处理**
+
+```js
+router.afterEach((to, from, failure) => {
+	// do something
+})
+```
+
+#### 11.2路由独享守卫
+路由独享守卫写在路由列表的指定路由中，参数与全局前置路由守卫一样
+```js
+const routes = [
+	{
+		name: 'Home',
+		path: '/',
+		component: () => import(...),
+		beforeEnter: (to, from , next) => {
+			//...do something
+		}
+	}
+]
+```
+**在 vueRouter 4.x 中** 路由独享守卫还可以是一个数组
+
+```js
+const fun = () => ();
+const fun1 = () => ();
+
+const routes = [
+	{
+		name: 'Home',
+		path: '/',
+		component: () => import(...),
+		beforeEnter: [fun, fun1]
+	}
+]
+```
+
+### 11.3 组件内的路由守卫
+组件内的守卫，就是在组件内部的守卫
+
+#### 11.3.1 boforeRouteEnter
+在该组件的路由被别确认前使用
+参数：该路由守卫与全局前置路由守卫的参数一致
+this: 由于是在路由确认前使用，因此，组件实例并未创建，`无法获取this`
+```vue
+//home 组件
+<script>
+export default {
+	beforeRouteEnter(to, from, next) {
+		console.log('组件路由守卫')
+		next()
+	}
+}
+</script>
+```
+> 该路由在 `全局前置守卫` 之后执行，在`全局解析守卫`之前执行
+
+#### 11.3.2 beforeRouteUpdate
+- 在当前路由改变，但是该组件被复用时调用
+
+- 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候
+
+- 由于会渲染同样的 Foo 组件，因此组件实例会被复用。而这个钩子就会在这个情况下被调用。
+
+- 可以访问组件实例 `this`
+
+**路由改变，但组件复用时，路由独享守卫，与 组件前置守卫不糊触发， 只会触发组件的路由更新守卫(beforeRouteUpdate)**
+
+```vue
+<script>
+export default {
+  beforeRouteEnter(to, from, next) {
+    console.log("组件前置路由守卫被触发");
+    console.log(this);
+    next();
+  },
+  beforeRouteUpdate(to, form) {
+    console.log("更新路由 触发了");
+  },
+};
+</script>
+```
+
+#### 11.3.3 beforeRouteLeave
+这个离开守卫通常用来禁止用户在还未保存修改前突然离开。该导航可以通过 `next(false)` 来取消。
+
+该路由守卫在离开当前路由之前触发
+
+```vue
+<script>
+export default {
+  beforeRouteEnter(to, from, next) {
+    console.log("组件前置路由守卫被触发");
+    console.log(this);
+    next();
+  },
+  beforeRouteUpdate(to, form) {
+    console.log("更新路由 触发了");
+  },
+  beforeRouteLeave(to, from, next) {
+    console.log("离开路由了");
+    next();
+  },
+};
+</script>
+```
+
+#### 11.3.4 完整路由导航解析流程
+1.  导航被触发。
+2.  在失活的组件里调用 `beforeRouteLeave` 守卫。3.  调用全局的 `beforeEach` 守卫。
+4.  在重用的组件里调用 `beforeRouteUpdate` 守卫 (2.2+)。
+5.  在路由配置里调用 `beforeEnter`。
+6.  解析异步路由组件。
+7.  在被激活的组件里调用 `beforeRouteEnter`。
+8.  调用全局的 `beforeResolve` 守卫 (2.5+)。
+9.  导航被确认。
+10.  调用全局的 `afterEach` 钩子。
+11.  触发 DOM 更新。
+12.  调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数，创建好的组件实例会作为回调函数的参数传入。
+13. 
+
+### 11.4路由元信息 meta
+可以在 `routes` 中配置meta, 它本质上是一个对象，可以在 `$route.meta`中访问到或 `路由守卫`中访问到
+```js
+const routes = [
+  {
+    path: '/posts',
+    component: PostsLayout,
+    children: [
+      {
+        path: 'new',
+        component: PostsNew,
+        // 只有经过身份验证的用户才能创建帖子
+        meta: { requiresAuth: true }
+      },
+      {
+        path: ':id',
+        component: PostsDetail
+        // 任何人都可以阅读文章
+        meta: { requiresAuth: false }
+      }
+    ]
+  }
+]
+
+
+```
+在路由守卫中访问 `meta` 字段
+```js
+router.beforeEach((to, from) => {
+  // 而不是去检查每条路由记录
+  // to.matched.some(record => record.meta.requiresAuth)
+  if (to.meta.requiresAuth && !auth.isLoggedIn()) {
+    // 此路由需要授权，请检查是否已登录
+    // 如果没有，则重定向到登录页面
+    return {
+      path: '/login',
+      // 保存我们所在的位置，以便以后再来
+      query: { redirect: to.fullPath },
+    }
+  }
+})
+```
