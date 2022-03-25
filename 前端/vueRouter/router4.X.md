@@ -795,7 +795,7 @@ const routes = [
 ]
 ```
 
-### 11.3 组件内的路由守卫
+#### 11.3 组件内的路由守卫
 组件内的守卫，就是在组件内部的守卫
 
 #### 11.3.1 boforeRouteEnter
@@ -879,7 +879,7 @@ export default {
 12.  调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数，创建好的组件实例会作为回调函数的参数传入。
 13. 
 
-### 11.4路由元信息 meta
+#### 11.4路由元信息 meta
 可以在 `routes` 中配置meta, 它本质上是一个对象，可以在 `$route.meta`中访问到或 `路由守卫`中访问到
 ```js
 const routes = [
@@ -921,3 +921,162 @@ router.beforeEach((to, from) => {
   }
 })
 ```
+
+### 12过渡动效
+#### 12.1 vue-router4.x
+想要在你的路径组件上使用转场，并对导航进行动画处理，你需要使用 [v-slot API](https://router.vuejs.org/zh/api/#router-view-s-v-slot)：
+```vue
+<router-view v-slot="{ Component }">
+  <transition name="fade">
+    <component :is="Component" />
+  </transition>
+</router-view>
+```
+v-slot接受一下参数：
+-   `href`：解析后的 URL。将会作为一个 `<a>` 元素的 `href` 属性。如果什么都没提供，则它会包含 `base`。
+-   `route`：解析后的规范化的地址。
+-   `navigate`：触发导航的函数。 **会在必要时自动阻止事件**，和 `router-link` 一样。例如：`ctrl` 或者 `cmd` + 点击仍然会被 `navigate` 忽略。
+-   `isActive`：如果需要应用 [active class](https://router.vuejs.org/zh/api/#active-class)，则为 `true`。允许应用一个任意的 class。
+-   `isExactActive`：如果需要应用 [exact active class](https://router.vuejs.org/zh/api/#exact-active-class)，则为 `true`。允许应用一个任意的 class。
+
+**单个路由的过渡**
+上面的用法会对所有的路由使用相同的过渡。如果你想让每个路由的组件有不同的过渡，你可以将[元信息](https://router.vuejs.org/zh/guide/advanced/meta.html)和动态的 `name` 结合在一起，放在`<transition>` 上：
+```js
+const routes = [
+  {
+    path: '/custom-transition',
+    component: PanelLeft,
+    meta: { transition: 'slide-left' },
+  },
+  {
+    path: '/other-transition',
+    component: PanelRight,
+    meta: { transition: 'slide-right' },
+  },
+]
+```
+
+```vue
+<router-view v-slot="{ Component, route }">
+  <!-- 使用任何自定义过渡和回退到 `fade` -->
+  <transition :name="route.meta.transition || 'fade'">
+    <component :is="Component" />
+  </transition>
+</router-view>
+```
+
+#### 12.2 vue-router 3.x 
+直接使用 `transition` 标签包裹即可
+```vue
+<transition>
+  <router-view></router-view>
+</transition>
+```
+
+
+### 13.滚动行为
+若要在跳转到新路由时，使页面保持原先的滚动位置，可以在router实例中，使用 `scrollBehavior` 方法
+```js
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [...],
+  scrollBehavior (to, from, savedPosition) {
+    // return 期望滚动到哪个的位置
+  }
+})
+```
+该函数可以返回一个 [`ScrollToOptions`](https://developer.mozilla.org/en-US/docs/Web/API/ScrollToOptions) 位置对象:
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终滚动到顶部
+    return { top: 0 }
+  },
+})
+```
+你也可以通过 `el` 传递一个 CSS 选择器或一个 DOM 元素。在这种情况下，`top` 和 `left` 将被视为该元素的相对偏移量。
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终在元素 #main 上方滚动 10px
+    return {
+      // 也可以这么写
+      // el: document.getElementById('main'),
+      el: '#main',
+      top: -10,
+    }
+  },
+})
+```
+#### 13.1 延迟滚动
+有时候，我们需要在页面中滚动之前稍作等待。例如，当处理过渡时，我们希望等待过渡结束后再滚动。要做到这一点，你可以返回一个 Promise，它可以返回所需的位置描述符。下面是一个例子，我们在滚动前等待 500ms：
+```js
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({ left: 0, top: 0 })
+      }, 500)
+    })
+  },
+})
+```
+
+### 14.路由懒加载
+路由的 component/components 接受一个返回promise的组件函数，vue-router 只会在第一次进入页面的时候才会获取这个函数，然后使用缓存数据，在打包时，会自定分割代码
+```js
+// 将 ter
+// import UserDetails from './views/UserDetails'
+// 替换成
+const UserDetails = () => import('./views/UserDetails')
+
+const router = createRouter({
+  // ...
+  routes: [{ path: '/users/:id', component: UserDetails }],
+})
+```
+#### 14.1把组件安组分块
+有时候我们想把某个路由下的所有组件都打包在同个异步块 (chunk) 中。只需要使用[命名 chunk](https://webpack.js.org/guides/code-splitting/#dynamic-imports)，一个特殊的注释语法来提供 chunk name (需要 Webpack > 2.4)：
+```js
+const UserDetails = () =>
+  import(/* webpackChunkName: "group-user" */ './UserDetails.vue')
+const UserDashboard = () =>
+  import(/* webpackChunkName: "group-user" */ './UserDashboard.vue')
+const UserProfileEdit = () =>
+  import(/* webpackChunkName: "group-user" */ './UserProfileEdit.vue')
+```
+webpack 会将任何一个异步模块与相同的块名称组合到相同的异步块中。
+
+### 15.动态路由
+#### 15.1 添加路由 addRoute
+可以使用`$router.addRoute` 向路由表添加一个路由
+```js
+router.addRoute({ path: '/about', component: About })
+```
+
+#### 15.2删除路由 removeRoute
+删除路由的几种方式：
+- `$router.removeRoute`
+```js
+//删除路由
+router.removeRoute('about')
+```
+
+- 添加同名路由
+```js
+router.addRoute({ path: '/about', name: 'about', component: About })
+// 这将会删除之前已经添加的路由，因为他们具有相同的名字且名字必须是唯一的
+router.addRoute({ path: '/other', name: 'about', component: Other })
+```
+
+- 调用 `router.addRoute()` 返回的回调：
+```js
+const removeRoute = router.addRoute(routeRecord)
+removeRoute() // 删除路由如果存在的话
+```
+
+#### 15.3查看现有路由
+Vue Router 提供了两个功能来查看现有的路由：
+
+- `router.hasRoute()：`检查路由是否存在。
+ - `router.getRoutes()：`获取一个包含所有路由记录的数组。
