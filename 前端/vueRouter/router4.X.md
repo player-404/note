@@ -537,7 +537,7 @@ const routes = [
 	}
 ]
 ```
-- 访问别名`/haha`，会跳转到路由home中，但不会携带参数，因为别名中并未有设置参数，只有访问别名`/heihei/:id`才能懈怠参数
+- 访问别名`/haha`，会跳转到路由home中，但不会携带参数，因为别名中并未有设置参数，只有访问别名`/heihei/:id`才能携带参数
 - 根路由必须以`/`开头，以`path`的格式
 
 子路由使用别名：
@@ -798,7 +798,7 @@ const routes = [
 #### 11.3 组件内的路由守卫
 组件内的守卫，就是在组件内部的守卫
 
-#### 11.3.1 boforeRouteEnter
+##### 11.3.1 boforeRouteEnter
 在该组件的路由被别确认前使用
 参数：该路由守卫与全局前置路由守卫的参数一致
 this: 由于是在路由确认前使用，因此，组件实例并未创建，`无法获取this`
@@ -815,7 +815,7 @@ export default {
 ```
 > 该路由在 `全局前置守卫` 之后执行，在`全局解析守卫`之前执行
 
-#### 11.3.2 beforeRouteUpdate
+##### 11.3.2 beforeRouteUpdate
 - 在当前路由改变，但是该组件被复用时调用
 
 - 举例来说，对于一个带有动态参数的路径 /foo/:id，在 /foo/1 和 /foo/2 之间跳转的时候
@@ -841,7 +841,7 @@ export default {
 </script>
 ```
 
-#### 11.3.3 beforeRouteLeave
+##### 11.3.3 beforeRouteLeave
 这个离开守卫通常用来禁止用户在还未保存修改前突然离开。该导航可以通过 `next(false)` 来取消。
 
 该路由守卫在离开当前路由之前触发
@@ -867,7 +867,8 @@ export default {
 
 #### 11.3.4 完整路由导航解析流程
 1.  导航被触发。
-2.  在失活的组件里调用 `beforeRouteLeave` 守卫。3.  调用全局的 `beforeEach` 守卫。
+2.  在失活的组件里调用 `beforeRouteLeave` 守卫。
+3.  调用全局的 `beforeEach` 守卫。
 4.  在重用的组件里调用 `beforeRouteUpdate` 守卫 (2.2+)。
 5.  在路由配置里调用 `beforeEnter`。
 6.  解析异步路由组件。
@@ -877,7 +878,6 @@ export default {
 10.  调用全局的 `afterEach` 钩子。
 11.  触发 DOM 更新。
 12.  调用 `beforeRouteEnter` 守卫中传给 `next` 的回调函数，创建好的组件实例会作为回调函数的参数传入。
-13. 
 
 #### 11.4路由元信息 meta
 可以在 `routes` 中配置meta, 它本质上是一个对象，可以在 `$route.meta`中访问到或 `路由守卫`中访问到
